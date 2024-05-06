@@ -1,0 +1,6 @@
+/__pycache__
+/videos/Abandon/*
+/videos/Platform/*
+/videos/Queue/*
+yolov9c.pt
+/deep_sort

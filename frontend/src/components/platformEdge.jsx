@@ -23,7 +23,20 @@ const PlatformEdge = () => {
       };
       fetchVideoStream();
     }, []);
-  
+    const handleStop=async ()=>{
+      const formData = new FormData();
+      formData.append('stop',true);
+      try {
+        const res = await axios.post('http://127.0.0.1:5000/video_feed/stop', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            },
+        });
+        console.log(res.data);
+    } catch (error) {
+        console.error(error);
+    }
+    }
     return (
       <div className='video-cont'>
         <h1>platform</h1>
@@ -32,7 +45,9 @@ const PlatformEdge = () => {
             <>Loading...</>
           ) : (
             <>
+              <button onClick={handleStop}>Stop</button>
               <h2>Video Stream</h2>
+             
                <img src='http://127.0.0.1:5000/video_feed/platform' alt="Video Stream" />
             </>
           )}

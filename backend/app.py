@@ -3,11 +3,12 @@ import cv2
 from flask import Flask, render_template, Response,request,jsonify
 from flask_cors import CORS
 import os
-
+from service import platform_detection,queue_detection
+from streaming import Stream
 app = Flask(__name__)
 CORS(app)
 
-
+stream = Stream(True)
 
 
 def gen(video_path):
@@ -36,20 +37,19 @@ def gen(video_path):
 @app.route('/video_feed/platform')
 def video_feed_platform():
     """Video streaming route. Put this in the src attribute of an img tag."""
-    file = os.listdir(os.path.join(os.getcwd(),'videos','Platform'))[0]
-    file = os.path.join(os.getcwd(),'videos','Platform',file)
-    print(file)
-    
-    return Response(gen(file),
+    # file = os.listdir(os.path.join(os.getcwd(),'videos','Platform'))[0]
+    # file = os.path.join(os.getcwd(),'videos','Platform',file)
+    stream.is_streaming=True
+    return Response(platform_detection(stream),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/video_feed/ticket')
 def video_feed_ticket():
     """Video streaming route. Put this in the src attribute of an img tag."""
-    file = os.listdir(os.path.join(os.getcwd(),'videos','Abandon'))[0]
-    file = os.path.join(os.getcwd(),'videos','Abandon',file)
-    print(file)
-    return Response(gen(file),
+    # file = os.listdir(os.path.join(os.getcwd(),'videos','Abandon'))[0]
+    # file = os.path.join(os.getcwd(),'videos','Abandon',file)
+    stream.is_streaming=True
+    return Response(queue_detection(stream),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/video_feed/lostbaggage')
@@ -57,7 +57,6 @@ def video_feed_lostbaggage():
     """Video streaming route. Put this in the src attribute of an img tag."""
     file = os.listdir(os.path.join(os.getcwd(),'videos','Queue'))[0]
     file = os.path.join(os.getcwd(),'videos','Queue',file)
-    print(file)
     return Response(gen(file),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
@@ -73,6 +72,13 @@ def video_feed_upload():
         filename = file.filename
         file.save(os.path.join(os.getcwd(),'videos',video_type, filename))
         return jsonify({'message': 'File uploaded successfully', 'filename': filename})
+    
+@app.route('/video_feed/stop',methods=['POST'])
+def stop_streaming():
+    # with open('./points_data/is_streaming.json', 'w') as f:
+    #     json.dump(False, f)
+    stream.is_streaming=False
+    return 'Streaming stopped', 200
     
 
 
